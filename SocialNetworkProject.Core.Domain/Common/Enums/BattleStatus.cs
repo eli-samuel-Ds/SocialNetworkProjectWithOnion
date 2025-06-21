@@ -2,8 +2,8 @@
 {
     public enum BattleStatus
     {
-        Setup = 0,
-        InProgress = 1,
-        Completed = 2
+        Setup = 1,
+        InProgress = 2,
+        Completed = 3
     }
 }
