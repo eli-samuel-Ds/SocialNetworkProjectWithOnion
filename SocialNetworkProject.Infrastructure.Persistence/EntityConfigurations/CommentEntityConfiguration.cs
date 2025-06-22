@@ -20,7 +20,7 @@ namespace SocialNetworkProject.Infrastructure.Persistence.EntityConfigurations
             builder.HasOne(c => c.Author)
                 .WithMany(u => u.Comments)
                 .HasForeignKey(c => c.AuthorId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(c => c.Post)
                 .WithMany(p => p.Comments)

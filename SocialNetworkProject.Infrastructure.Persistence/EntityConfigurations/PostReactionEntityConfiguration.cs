@@ -14,15 +14,15 @@ namespace SocialNetworkProject.Infrastructure.Persistence.EntityConfigurations
             builder.Property(r => r.Reaction)
                 .IsRequired();
 
-            builder.HasOne(r => r.User)
-                .WithMany(u => u.Reactions)
-                .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             builder.HasOne(r => r.Post)
                 .WithMany(p => p.Reactions)
                 .HasForeignKey(r => r.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(r => r.User)
+                .WithMany(u => u.Reactions)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

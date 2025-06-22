@@ -1,7 +1,13 @@
+using SocialNetworkProject.Infrastructure.Persistence;
+using SocialNetworkProject.Infrastructure.Shared;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddPersistenceLayerIoc(builder.Configuration);
+builder.Services.AddSharedLayerIoc(builder.Configuration);
 
 var app = builder.Build();
 

@@ -22,7 +22,7 @@ namespace SocialNetworkProject.Infrastructure.Persistence.EntityConfigurations
             builder.HasOne(f => f.FriendUser)
                 .WithMany()
                 .HasForeignKey(f => f.FriendId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasIndex(f => new { f.UserId, f.FriendId })
                 .IsUnique();
