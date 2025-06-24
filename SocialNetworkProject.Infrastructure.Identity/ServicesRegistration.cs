@@ -1,9 +1,10 @@
-﻿using SocialNetworkProject.Infrastructure.Identity.Contexts;
-using SocialNetworkProject.Infrastructure.Identity.Entities;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SocialNetworkProject.Infrastructure.Identity.Contexts;
+using SocialNetworkProject.Infrastructure.Identity.Entities;
+using SocialNetworkProject.Infrastructure.Identity.Seeds;
 
 namespace SocialNetworkProject.Infrastructure.Identity
 {
@@ -34,22 +35,35 @@ namespace SocialNetworkProject.Infrastructure.Identity
                 .AddEntityFrameworkStores<IdentityContextSocial>()
                 .AddTokenProvider<DataProtectorTokenProvider<AppUser>>(TokenOptions.DefaultProvider);
 
-            services.Configure<DataProtectionTokenProviderOptions>(options => 
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
             {
                 options.TokenLifespan = TimeSpan.FromHours(12);
             });
 
-            services.AddAuthentication(options => 
+            services.AddAuthentication(options =>
             {
                 options.DefaultScheme = IdentityConstants.ApplicationScheme;
                 options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
                 options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
-            }).AddCookie(IdentityConstants.ApplicationScheme, options => 
+            }).AddCookie(IdentityConstants.ApplicationScheme, options =>
             {
                 options.ExpireTimeSpan = TimeSpan.FromDays(180);
                 options.LoginPath = "/Login";
                 options.AccessDeniedPath = "/Login/AccessDenied";
             });
+        }
+
+        public static async Task RunIdentitySeedAsync(this IServiceProvider service)
+        {
+            using var scope = service.CreateScope();
+            var servicesProvider = scope.ServiceProvider;
+
+            var userManager = servicesProvider.GetRequiredService<UserManager<AppUser>>();
+            var roleManager = servicesProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            await DefaultRoles.SeedAsync(roleManager);
+            await DefaultUserNormal.SeedAsync(userManager);
+            await DefaultAdministradorUser.SeedAsync(userManager);
         }
 
         private static void GeneralConfiguration(IServiceCollection services, IConfiguration config)

@@ -1,6 +1,7 @@
+using SocialNetworkProject.Core.Application;
+using SocialNetworkProject.Infrastructure.Identity;
 using SocialNetworkProject.Infrastructure.Persistence;
 using SocialNetworkProject.Infrastructure.Shared;
-using SocialNetworkProject.Infrastructure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,9 +17,12 @@ builder.Services.AddSession(opt =>
 builder.Services.AddPersistenceLayerIoc(builder.Configuration);
 builder.Services.AddIdentityLayerIoc(builder.Configuration);
 builder.Services.AddSharedLayerIoc(builder.Configuration);
+builder.Services.AddApplicationLayerIoc();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); 
 
 var app = builder.Build();
+
+await app.Services.RunIdentitySeedAsync();
 
 if (!app.Environment.IsDevelopment())
 {
@@ -37,5 +41,5 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Login}/{action=Index}/{id?}"); 
+    pattern: "{controller=Home}/{action=Index}/{id?}"); 
 app.Run();

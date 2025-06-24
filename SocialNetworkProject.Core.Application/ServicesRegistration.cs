@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace SocialNetworkProject.Core.Application
 {
-    internal class ServicesRegistration
+    public static class ServicesRegistration
     {
+        public static void AddApplicationLayerIoc(this IServiceCollection services)
+        {
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+        }
     }
 }

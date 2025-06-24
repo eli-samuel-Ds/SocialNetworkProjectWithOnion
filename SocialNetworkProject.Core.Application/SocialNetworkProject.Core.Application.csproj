@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <Folder Include="Helpers\" />
-    <Folder Include="Mappings\" />
     <Folder Include="ViewModels\" />
     <Folder Include="Services\" />
   </ItemGroup>
