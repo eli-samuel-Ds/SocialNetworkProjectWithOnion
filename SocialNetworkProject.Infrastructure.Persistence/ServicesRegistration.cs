@@ -13,12 +13,30 @@ namespace SocialNetworkProject.Infrastructure.Persistence
     {
         public static void AddPersistenceLayerIoc(this IServiceCollection services, IConfiguration config)
         {
-            var connectionString = config.GetConnectionString("DefaultConnection");
-            services.AddDbContext<SocialNetworkProjectContext>(options =>
-                options.UseSqlServer(connectionString));
+            #region Contexts
+            if (config.GetValue<bool>("UseInMemoryDatabase"))
+            {
+                services.AddDbContext<SocialNetworkProjectContext>(opt =>
+                                            opt.UseInMemoryDatabase("AppDb"));
+            }
+            else
+            {
+                var connectionString = config.GetConnectionString("DefaultConnection");
+                services.AddDbContext<SocialNetworkProjectContext>(
+                    (serviceProvider, opt) =>
+                    {
+                        opt.EnableSensitiveDataLogging(); 
+                        opt.UseSqlServer(connectionString,
+                        m => m.MigrationsAssembly(typeof(SocialNetworkProjectContext).Assembly.FullName));
+                    },
+                    contextLifetime: ServiceLifetime.Scoped,
+                    optionsLifetime: ServiceLifetime.Scoped
+                );
+            }
+            #endregion
 
+            #region Repositories IOC
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
             services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IPostReactionRepository, PostReactionRepository>();
@@ -29,6 +47,7 @@ namespace SocialNetworkProject.Infrastructure.Persistence
             services.AddScoped<IShipRepository, ShipRepository>();
             services.AddScoped<IShipPositionRepository, ShipPositionRepository>();
             services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
+            #endregion
         }
     }
 }
