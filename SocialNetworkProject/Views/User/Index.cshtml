@@ -1,0 +1,40 @@
+﻿@model SocialNetworkProject.Core.Application.ViewModels.User.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row">
+    <div class="col-md-4 offset-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Iniciar Sesión</h4>
+            </div>
+            <div class="card-body">
+                @if(!string.IsNullOrEmpty(ViewBag.SuccessMessage))
+                {
+                    <div class="alert alert-success">@ViewBag.SuccessMessage</div>
+                }
+                
+                @Html.ValidationMessage("LoginError", new { @class = "text-danger" })
+
+                <form asp-action="Index" method="post">
+                    <div class="mb-3">
+                        <label asp-for="UserName" class="form-label"></label>
+                        <input asp-for="UserName" class="form-control" />
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Acceder</button>
+                    <a asp-action="Register" class="btn btn-secondary">Registrarse</a>
+                    <div class="mt-2">
+                        <a asp-action="ForgotPassword">¿Olvidaste tu contraseña?</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

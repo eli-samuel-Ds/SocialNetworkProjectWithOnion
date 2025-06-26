@@ -22,8 +22,4 @@
     <ProjectReference Include="..\SocialNetworkProject.Infrastructure.Shared\SocialNetworkProject.Infrastructure.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Helpers\" />
-  </ItemGroup>
-
 </Project>

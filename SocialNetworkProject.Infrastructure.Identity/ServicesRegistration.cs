@@ -2,9 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SocialNetworkProject.Core.Application.Interfaces;
 using SocialNetworkProject.Infrastructure.Identity.Contexts;
 using SocialNetworkProject.Infrastructure.Identity.Entities;
 using SocialNetworkProject.Infrastructure.Identity.Seeds;
+using SocialNetworkProject.Infrastructure.Identity.Services;
 
 namespace SocialNetworkProject.Infrastructure.Identity
 {
@@ -13,6 +15,8 @@ namespace SocialNetworkProject.Infrastructure.Identity
         public static void AddIdentityLayerIoc(this IServiceCollection services, IConfiguration config)
         {
             GeneralConfiguration(services, config);
+
+            services.AddScoped<IAccountService, AccountService>();
 
             services.Configure<IdentityOptions>(options =>
             {

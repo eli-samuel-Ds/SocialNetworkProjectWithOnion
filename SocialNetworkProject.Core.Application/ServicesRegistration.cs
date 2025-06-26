@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SocialNetworkProject.Core.Application.Interfaces;
+using SocialNetworkProject.Core.Application.Services;
 using System.Reflection;
 
 namespace SocialNetworkProject.Core.Application
@@ -8,7 +10,7 @@ namespace SocialNetworkProject.Core.Application
         public static void AddApplicationLayerIoc(this IServiceCollection services)
         {
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
-
+            services.AddTransient<IFileUploader, FileUploaderService>();
         }
     }
 }

@@ -22,17 +22,22 @@ namespace SocialNetworkProject.Infrastructure.Shared.Services
         {
             try
             {
-                emailRequestDto.ToRange?.Add(emailRequestDto.To ?? "");
-
                 MimeMessage email = new()
                 {
-                    Sender = MailboxAddress.Parse(_mailSettings.EmailFrom),
+                    Sender = new MailboxAddress(_mailSettings.DisplayName, _mailSettings.EmailFrom),
                     Subject = emailRequestDto.Subject
                 };
 
-                foreach (var toItem in emailRequestDto.ToRange ?? [])
+                if (emailRequestDto.ToRange != null && emailRequestDto.ToRange.Any())
                 {
-                    email.To.Add(MailboxAddress.Parse(toItem));
+                    foreach (var toItem in emailRequestDto.ToRange)
+                    {
+                        email.To.Add(MailboxAddress.Parse(toItem));
+                    }
+                }
+                else
+                {
+                    email.To.Add(MailboxAddress.Parse(emailRequestDto.To));
                 }
 
                 BodyBuilder builder = new()
@@ -41,7 +46,7 @@ namespace SocialNetworkProject.Infrastructure.Shared.Services
                 };
                 email.Body = builder.ToMessageBody();
 
-                using MailKit.Net.Smtp.SmtpClient smtpClient = new();
+                using var smtpClient = new MailKit.Net.Smtp.SmtpClient();
                 await smtpClient.ConnectAsync(_mailSettings.SmtpHost, _mailSettings.SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
                 await smtpClient.AuthenticateAsync(_mailSettings.SmtpUser, _mailSettings.SmtpPass);
                 await smtpClient.SendAsync(email);
@@ -49,7 +54,7 @@ namespace SocialNetworkProject.Infrastructure.Shared.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An exception occured {Exception}.", ex);
+                _logger.LogError(ex, "Ocurrió una excepción al enviar el correo: {Exception}", ex);
             }
         }
     }
