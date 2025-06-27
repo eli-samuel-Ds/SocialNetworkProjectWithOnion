@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using SocialNetworkProject.Core.Application.Dtos.Account;
 using SocialNetworkProject.Core.Application.Interfaces;
+using SocialNetworkProject.Core.Application.ViewModels.User;
 using SocialNetworkProject.Core.Domain.Common.Enums;
 using SocialNetworkProject.Infrastructure.Identity.Entities;
 using System.Text;
@@ -13,12 +15,14 @@ namespace SocialNetworkProject.Infrastructure.Identity.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailService _emailService;
+        private readonly IMapper _mapper;
 
-        public AccountService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailService emailService)
+        public AccountService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailService emailService, IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailService = emailService;
+            _mapper = mapper;
         }
 
         public async Task SetProfilePictureAsync(string userId, string profilePictureUrl)
@@ -197,6 +201,74 @@ namespace SocialNetworkProject.Infrastructure.Identity.Services
         public async Task SignOutAsync()
         {
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<EditProfileViewModel> GetProfileForEditAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("Usuario no encontrado.");
+            }
+
+            var viewModel = _mapper.Map<EditProfileViewModel>(user);
+            return viewModel;
+        }
+
+        public async Task<ProfileDto> GetProfileForEditDtoAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return new ProfileDto { Id = "", FirstName = "", LastName = "", PhoneNumber = "" };
+            }
+
+            var profileDto = _mapper.Map<ProfileDto>(user);
+            return profileDto;
+        }
+
+        public async Task<AuthenticationResponse> UpdateProfileAsync(UpdateProfileRequest request)
+        {
+            AuthenticationResponse response = new() { HasError = false };
+            var user = await _userManager.FindByIdAsync(request.UserId);
+
+            if (user == null)
+            {
+                response.HasError = true;
+                response.Error = "Usuario no encontrado.";
+                return response;
+            }
+
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+            user.PhoneNumber = request.PhoneNumber;
+
+            if (!string.IsNullOrWhiteSpace(request.ProfilePictureUrl))
+            {
+                user.ProfilePictureUrl = request.ProfilePictureUrl;
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                response.HasError = true;
+                response.Error = string.Join(", ", result.Errors.Select(e => e.Description));
+                return response;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Password))
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var passwordResult = await _userManager.ResetPasswordAsync(user, token, request.Password);
+                if (!passwordResult.Succeeded)
+                {
+                    response.HasError = true;
+                    response.Error = string.Join(", ", passwordResult.Errors.Select(e => e.Description));
+                    return response;
+                }
+            }
+
+            return response;
         }
 
         private async Task<string> GetVerificationEmailUri(AppUser user, string origin)

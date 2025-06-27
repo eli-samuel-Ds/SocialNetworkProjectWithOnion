@@ -1,5 +1,7 @@
 using SocialNetworkProject.Core.Application;
+using SocialNetworkProject.Core.Application.Mappings.EntitiesAndDtos; 
 using SocialNetworkProject.Infrastructure.Identity;
+using SocialNetworkProject.Infrastructure.Identity.Mappings; 
 using SocialNetworkProject.Infrastructure.Persistence;
 using SocialNetworkProject.Infrastructure.Shared;
 using SocialNetworkProject.Middlewares;
@@ -12,20 +14,27 @@ builder.Services.AddSession(opt =>
 {
     opt.IdleTimeout = TimeSpan.FromMinutes(60);
     opt.Cookie.HttpOnly = true;
-    opt.Cookie.IsEssential = true; 
+    opt.Cookie.IsEssential = true;
 });
 
+builder.Services.AddAutoMapper(
+    typeof(ProfileMappingProfile).Assembly,
+    typeof(IdentityMappingProfile).Assembly
+);
+
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddScoped<LoginAuthorize>(); 
+builder.Services.AddScoped<LoginAuthorize>();
+builder.Services.AddScoped<UserAuthorize>();
 
 builder.Services.AddPersistenceLayerIoc(builder.Configuration);
 builder.Services.AddIdentityLayerIoc(builder.Configuration);
 builder.Services.AddSharedLayerIoc(builder.Configuration);
-builder.Services.AddApplicationLayerIoc();
+builder.Services.AddApplicationLayerIoc(); 
 
 var app = builder.Build();
 
 await app.Services.RunIdentitySeedAsync();
+
 
 if (!app.Environment.IsDevelopment())
 {

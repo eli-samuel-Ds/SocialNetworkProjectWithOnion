@@ -11,14 +11,14 @@ namespace SocialNetworkProject.Controllers
     public class UserController : Controller
     {
         private readonly IAccountService _accountService;
-        private readonly IFileUploader _fileUploader; // <-- AÑADIR SERVICIO
+        private readonly IFileUploader _fileUploader; 
         private readonly IMapper _mapper;
 
-        public UserController(IAccountService accountService, IMapper mapper, IFileUploader fileUploader) // <-- AÑADIR AL CONSTRUCTOR
+        public UserController(IAccountService accountService, IMapper mapper, IFileUploader fileUploader) 
         {
             _accountService = accountService;
             _mapper = mapper;
-            _fileUploader = fileUploader; // <-- ASIGNAR
+            _fileUploader = fileUploader; 
         }
 
         [ServiceFilter(typeof(LoginAuthorize))]
@@ -50,7 +50,6 @@ namespace SocialNetworkProject.Controllers
                 return View(vm);
             }
 
-            // Guardamos la sesión del usuario
             HttpContext.Session.Set("user", response);
 
             return RedirectToRoute(new { controller = "Home", action = "Index" });
@@ -59,7 +58,6 @@ namespace SocialNetworkProject.Controllers
         public async Task<IActionResult> Logout()
         {
             await _accountService.SignOutAsync();
-            // Removemos la sesión del usuario
             HttpContext.Session.Remove("user");
             return RedirectToAction("Index");
         }
@@ -92,7 +90,6 @@ namespace SocialNetworkProject.Controllers
             string origin = Request.Scheme + "://" + Request.Host;
             var request = _mapper.Map<RegisterRequest>(vm);
 
-            // Creamos el usuario SIN la foto de perfil primero
             var response = await _accountService.RegisterUserAsync(request, origin);
             if (response.HasError)
             {
@@ -102,7 +99,6 @@ namespace SocialNetworkProject.Controllers
                 return View(vm);
             }
 
-            // Si se creó correctamente y se subió un archivo, lo guardamos
             if (!response.HasError && vm.ProfilePictureFile != null)
             {
                 string imageUrl = _fileUploader.UploadFile(vm.ProfilePictureFile, response.Id, "profiles");
@@ -200,6 +196,67 @@ namespace SocialNetworkProject.Controllers
                 Password = string.Empty,
                 UserName = string.Empty
             });
+        }
+
+
+        [ServiceFilter(typeof(UserAuthorize))]
+        public async Task<IActionResult> Profile()
+        {
+            var userSession = HttpContext.Session.Get<AuthenticationResponse>("user");
+            if (userSession?.Id == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var profileDto = await _accountService.GetProfileForEditDtoAsync(userSession.Id);
+
+            var vm = _mapper.Map<EditProfileViewModel>(profileDto);
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ServiceFilter(typeof(UserAuthorize))]
+        public async Task<IActionResult> Profile(EditProfileViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(vm);
+            }
+
+            var userSession = HttpContext.Session.Get<AuthenticationResponse>("user");
+            vm.Id = userSession.Id;
+
+            if (!string.IsNullOrWhiteSpace(vm.Password))
+            {
+                if (string.IsNullOrWhiteSpace(vm.ConfirmPassword))
+                {
+                    ModelState.AddModelError("ConfirmPassword", "Debe confirmar la contraseña.");
+                    return View(vm);
+                }
+                if (vm.Password != vm.ConfirmPassword)
+                {
+                    ModelState.AddModelError("ConfirmPassword", "Las contraseñas no coinciden.");
+                    return View(vm);
+                }
+            }
+
+            var request = _mapper.Map<UpdateProfileRequest>(vm);
+
+            if (vm.ProfilePictureFile != null)
+            {
+                request.ProfilePictureUrl = _fileUploader.UploadFile(vm.ProfilePictureFile, userSession.Id, "profiles", true, vm.ProfilePictureUrl);
+            }
+
+            var response = await _accountService.UpdateProfileAsync(request);
+
+            if (response.HasError)
+            {
+                ModelState.AddModelError("ProfileError", response.Error);
+                return View(vm);
+            }
+
+            return RedirectToRoute(new { controller = "Home", action = "Index" });
         }
     }
 }

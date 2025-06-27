@@ -1,9 +1,14 @@
 ﻿using SocialNetworkProject.Core.Application.Dtos.Account;
+using SocialNetworkProject.Core.Application.ViewModels.User;
 
 namespace SocialNetworkProject.Core.Application.Interfaces
 {
     public interface IAccountService
     {
+        Task<AuthenticationResponse> UpdateProfileAsync(UpdateProfileRequest request);
+        Task<EditProfileViewModel> GetProfileForEditAsync(string userId);
+        Task<ProfileDto> GetProfileForEditDtoAsync(string userId);
+
         Task SetProfilePictureAsync(string userId, string profilePictureUrl);
         Task<AuthenticationResponse> AuthenticateAsync(AuthenticationRequest request);
         Task<AuthenticationResponse> RegisterUserAsync(RegisterRequest request, string origin);

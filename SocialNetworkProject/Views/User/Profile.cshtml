@@ -1,0 +1,81 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.User
+@model EditProfileViewModel
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="text-center">Editar Perfil</h3>
+                </div>
+                <div class="card-body">
+
+                    @if (!string.IsNullOrEmpty(ViewData["ProfileError"]?.ToString()))
+                    {
+                        <div class="alert alert-danger">@ViewData["ProfileError"]</div>
+                    }
+
+                    <form asp-action="Profile" method="post" enctype="multipart/form-data">
+
+                        <div class="text-center mb-4">
+                            <img src="@Model.ProfilePictureUrl" alt="Foto de Perfil" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label">Nombre</label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label">Apellido</label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label">Teléfono</label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ProfilePictureFile" class="form-label">Cambiar Foto de Perfil (Opcional)</label>
+                            <input asp-for="ProfilePictureFile" class="form-control" />
+                            <span asp-validation-for="ProfilePictureFile" class="text-danger"></span>
+                        </div>
+
+                        <hr />
+                        <p class="text-muted">Deje los siguientes campos en blanco si no desea cambiar su contraseña.</p>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Password" class="form-label">Nueva Contraseña</label>
+                                <input asp-for="Password" class="form-control" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ConfirmPassword" class="form-label">Confirmar Contraseña</label>
+                                <input asp-for="ConfirmPassword" class="form-control" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+                                <i class="fa fa-arrow-left"></i> Volver a Inicio
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
