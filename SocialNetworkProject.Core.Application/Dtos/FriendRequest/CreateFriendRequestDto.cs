@@ -2,7 +2,7 @@
 {
     public class CreateFriendRequestDto
     {
-        public required int RequesterId { get; set; }
-        public required int ReceiverId { get; set; }
+        public required string RequesterId { get; set; }
+        public required string ReceiverId { get; set; }
     }
 }

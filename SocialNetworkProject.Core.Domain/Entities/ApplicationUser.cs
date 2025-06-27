@@ -2,15 +2,14 @@
 
 namespace SocialNetworkProject.Core.Domain.Entities
 {
-    public class ApplicationUser : BasicEntity<int>
+    public class ApplicationUser : BasicEntity<string>
     {
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
         public required string Email { get; set; }
-        public required string PasswordHash { get; set; }
         public string? ProfilePictureUrl { get; set; }
         public bool IsActive { get; set; } = false;
-        
+
         public ICollection<Post>? Posts { get; set; }
         public ICollection<Comment>? Comments { get; set; }
         public ICollection<PostReaction>? Reactions { get; set; }

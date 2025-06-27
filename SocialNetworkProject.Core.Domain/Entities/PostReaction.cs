@@ -6,7 +6,7 @@ namespace SocialNetworkProject.Core.Domain.Entities
     public class PostReaction : BasicEntity<int>
     {
         public required ReactionType Reaction { get; set; }
-        public required int UserId { get; set; }
+        public required string UserId { get; set; }
         public required int PostId { get; set; }
 
         public ApplicationUser? User { get; set; }

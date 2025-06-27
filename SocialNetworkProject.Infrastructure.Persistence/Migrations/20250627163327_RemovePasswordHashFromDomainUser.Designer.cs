@@ -12,8 +12,8 @@ using SocialNetworkProject.Infrastructure.Persistence.Contexts;
 namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SocialNetworkProjectContext))]
-    [Migration("20250621221006_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250627163327_RemovePasswordHashFromDomainUser")]
+    partial class RemovePasswordHashFromDomainUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,8 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SocialNetworkProject.Core.Domain.Entities.ApplicationUser", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -50,10 +47,6 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProfilePictureUrl")
                         .HasMaxLength(500)
@@ -78,8 +71,9 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("AttackedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("AttackerId")
-                        .HasColumnType("int");
+                    b.Property<string>("AttackerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("BattleId")
                         .HasColumnType("int");
@@ -113,11 +107,13 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("EndedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Player1Id")
-                        .HasColumnType("int");
+                    b.Property<string>("Player1Id")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("Player2Id")
-                        .HasColumnType("int");
+                    b.Property<string>("Player2Id")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("datetime2");
@@ -145,8 +141,9 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -181,14 +178,16 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ReceiverId")
-                        .HasColumnType("int");
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("RequestedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("RequesterId")
-                        .HasColumnType("int");
+                    b.Property<string>("RequesterId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("RespondedAt")
                         .HasColumnType("datetime2");
@@ -217,11 +216,13 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FriendId")
-                        .HasColumnType("int");
+                    b.Property<string>("FriendId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -241,8 +242,9 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -280,8 +282,9 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                     b.Property<int>("Reaction")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -306,8 +309,9 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsPositioned")
                         .HasColumnType("bit");
 
-                    b.Property<int>("OwnerId")
-                        .HasColumnType("int");
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Size")
                         .HasColumnType("int");

@@ -1,0 +1,70 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.Friendship
+@model FriendRequestViewModel
+@{
+    ViewData["Title"] = "Solicitudes de Amistad";
+}
+
+<div class="container mt-4">
+
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h4>Solicitudes de Amistad Recibidas</h4>
+        </div>
+        <div class="card-body">
+            @if (Model.ReceivedRequests.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var request in Model.ReceivedRequests)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">@request.UserName</h5>
+                                <small class="text-muted">Enviada el @request.RequestDate.ToShortDateString()</small><br />
+                                <small class="text-muted">@request.MutualFriends amigos en común</small>
+                            </div>
+                            <div>
+                                <a asp-action="Accept" asp-route-id="@request.RequestId" class="btn btn-success btn-sm">Aceptar</a>
+                                <a asp-action="Reject" asp-route-id="@request.RequestId" class="btn btn-danger btn-sm">Rechazar</a>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No tienes solicitudes de amistad pendientes.</p>
+            }
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4>Solicitudes de Amistad Enviadas</h4>
+                <a asp-action="Add" class="btn btn-primary">Nueva Solicitud</a>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.SentRequests.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var request in Model.SentRequests)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">@request.UserName</h5>
+                                <small class="text-muted">Enviada el @request.RequestDate.ToShortDateString()</small><br />
+                                <small class="text-muted">Estado: <strong>@request.Status</strong></small>
+                            </div>
+                            <a asp-action="Delete" asp-route-id="@request.RequestId" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No has enviado ninguna solicitud de amistad.</p>
+            }
+        </div>
+    </div>
+</div>

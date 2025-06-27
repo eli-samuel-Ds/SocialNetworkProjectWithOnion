@@ -1,0 +1,61 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.Friendship
+@model AddFriendViewModel
+@{
+    ViewData["Title"] = "Añadir Amigo";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h4>Buscar y Enviar Solicitud de Amistad</h4>
+        </div>
+        <div class="card-body">
+
+            <form asp-action="Add" method="get" class="mb-4">
+                <div class="input-group">
+                    <input type="text" name="searchTerm" class="form-control" placeholder="Buscar por nombre de usuario..." value="@Model.SearchTerm">
+                    <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                </div>
+            </form>
+
+            @if (Model.PotentialFriends.Any())
+            {
+                <form asp-action="Add" method="post">
+                    <input type="hidden" asp-for="SearchTerm" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <ul class="list-group mb-3">
+                        @foreach (var user in Model.PotentialFriends)
+                        {
+                            <li class="list-group-item">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="SelectedUserId" id="user-@user.UserId" value="@user.UserId">
+                                    <label class="form-check-label w-100" for="user-@user.UserId">
+                                        <div class="d-flex align-items-center">
+                                            <img src="@user.ProfilePictureUrl" alt="Foto de perfil de @user.UserName" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <div>
+                                                <strong>@user.UserName</strong><br>
+                                                <small class="text-muted">@user.MutualFriendsCount amigos en común</small>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                    <span asp-validation-for="SelectedUserId" class="text-danger d-block mb-2"></span>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">Volver Atrás</a>
+                        <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <p>No se encontraron usuarios que coincidan con la búsqueda o que no sean ya tus amigos.</p>
+                <a asp-action="Index" class="btn btn-secondary">Volver Atrás</a>
+            }
+        </div>
+    </div>
+</div>

@@ -11,6 +11,8 @@ namespace SocialNetworkProject.Core.Application
         {
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddTransient<IFileUploader, FileUploaderService>();
+            services.AddTransient<IFriendshipService, FriendshipService>();
+            services.AddTransient<IUserService, UserService>();
         }
     }
 }

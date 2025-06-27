@@ -1,4 +1,5 @@
 ﻿using SocialNetworkProject.Core.Application.Dtos.Account;
+using SocialNetworkProject.Core.Application.Dtos.ApplicationUser;
 using SocialNetworkProject.Core.Application.ViewModels.User;
 
 namespace SocialNetworkProject.Core.Application.Interfaces
@@ -16,5 +17,6 @@ namespace SocialNetworkProject.Core.Application.Interfaces
         Task<AuthenticationResponse> ForgotPasswordAsync(ForgotPasswordRequest request);
         Task<AuthenticationResponse> ResetPasswordAsync(ResetPasswordRequest request);
         Task SignOutAsync();
+        Task<List<UserDto>> GetAllUsersAsync();
     }
 }

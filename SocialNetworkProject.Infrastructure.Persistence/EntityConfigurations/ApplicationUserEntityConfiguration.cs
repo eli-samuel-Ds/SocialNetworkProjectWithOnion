@@ -22,8 +22,6 @@ namespace SocialNetworkProject.Infrastructure.Persistence.EntityConfigurations
                 .HasMaxLength(200);
             builder.HasIndex(u => u.Email)
                 .IsUnique();
-            builder.Property(u => u.PasswordHash)
-                .IsRequired();
             builder.Property(u => u.ProfilePictureUrl)
                 .HasMaxLength(500);
         }

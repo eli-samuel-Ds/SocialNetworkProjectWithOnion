@@ -12,7 +12,7 @@ using SocialNetworkProject.Infrastructure.Identity.Contexts;
 namespace SocialNetworkProject.Infrastructure.Identity.Migrations
 {
     [DbContext(typeof(IdentityContextSocial))]
-    [Migration("20250624032333_InitialMigration")]
+    [Migration("20250627155448_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />

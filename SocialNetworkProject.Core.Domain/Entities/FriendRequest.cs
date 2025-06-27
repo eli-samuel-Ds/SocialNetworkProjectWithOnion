@@ -5,8 +5,9 @@ namespace SocialNetworkProject.Core.Domain.Entities
 {
     public class FriendRequest : BasicEntity<int>
     {
-        public required int RequesterId { get; set; }
-        public required int ReceiverId { get; set; }
+        public required string RequesterId { get; set; }
+        public required string ReceiverId { get; set; }
+
         public RequestStatus Status { get; set; } = RequestStatus.Pending;
         public required DateTime RequestedAt { get; set; }
         public DateTime? RespondedAt { get; set; }

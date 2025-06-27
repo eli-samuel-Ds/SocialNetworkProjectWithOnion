@@ -6,7 +6,7 @@ namespace SocialNetworkProject.Core.Domain.Entities
     public class Ship : BasicEntity<int>
     {
         public required int BattleId { get; set; }
-        public required int OwnerId { get; set; }
+        public required string OwnerId { get; set; }
         public required ShipType Type { get; set; }
         public required int Size { get; set; }
         public bool IsPositioned { get; set; } = false;

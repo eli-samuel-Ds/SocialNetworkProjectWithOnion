@@ -5,8 +5,8 @@ namespace SocialNetworkProject.Core.Domain.Entities
 {
     public class Battle : BasicEntity<int>
     {
-        public required int Player1Id { get; set; }
-        public required int Player2Id { get; set; }
+        public required string Player1Id { get; set; }
+        public required string Player2Id { get; set; }
         public BattleStatus Status { get; set; } = BattleStatus.Setup;
         public required DateTime StartedAt { get; set; }
         public DateTime? EndedAt { get; set; }

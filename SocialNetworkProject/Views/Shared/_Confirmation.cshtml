@@ -1,0 +1,27 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.Friendship
+@model ConfirmationViewModel
+@{
+    ViewData["Title"] = "Confirmar Acción";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-header bg-warning">
+                    <h4>Confirmación Requerida</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">@Model.Message</p>
+                </div>
+                <div class="card-footer text-muted">
+                    <form asp-controller="@Model.ConfirmationController" asp-action="@Model.ConfirmationAction" method="post">
+                        <input type="hidden" name="id" value="@Model.ItemId" />
+                        <a asp-controller="Friendship" asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-danger">Aceptar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

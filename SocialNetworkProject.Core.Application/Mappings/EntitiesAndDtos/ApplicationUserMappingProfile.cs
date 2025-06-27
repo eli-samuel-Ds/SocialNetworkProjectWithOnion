@@ -14,7 +14,6 @@ namespace SocialNetworkProject.Core.Application.Mappings.EntitiesAndDtos
             CreateMap<ApplicationUser, CreateUserDto>()
                 .ForMember(dest => dest.Password, opt => opt.Ignore())
                 .ReverseMap()
-                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
                 .ForMember(dest => dest.IsActive, opt => opt.Ignore())
                 .ForMember(dest => dest.Posts, opt => opt.Ignore())
                 .ForMember(dest => dest.Comments, opt => opt.Ignore())
@@ -30,7 +29,6 @@ namespace SocialNetworkProject.Core.Application.Mappings.EntitiesAndDtos
             CreateMap<ApplicationUser, UpdateUserDto>()
                 .ReverseMap()
                 .ForMember(dest => dest.Email, opt => opt.Ignore())
-                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
                 .ForMember(dest => dest.IsActive, opt => opt.Ignore())
                 .ForMember(dest => dest.Posts, opt => opt.Ignore())
                 .ForMember(dest => dest.Comments, opt => opt.Ignore())
@@ -42,6 +40,9 @@ namespace SocialNetworkProject.Core.Application.Mappings.EntitiesAndDtos
                 .ForMember(dest => dest.BattlesAsPlayer2, opt => opt.Ignore())
                 .ForMember(dest => dest.Ships, opt => opt.Ignore())
                 .ForMember(dest => dest.Attacks, opt => opt.Ignore());
+
+            CreateMap<UserDto, ApplicationUser>()
+                .ReverseMap();
         }
     }
 }

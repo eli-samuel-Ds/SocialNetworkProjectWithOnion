@@ -15,8 +15,7 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
@@ -35,8 +34,8 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Player1Id = table.Column<int>(type: "int", nullable: false),
-                    Player2Id = table.Column<int>(type: "int", nullable: false),
+                    Player1Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Player2Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     StartedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -65,8 +64,8 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RequesterId = table.Column<int>(type: "int", nullable: false),
-                    ReceiverId = table.Column<int>(type: "int", nullable: false),
+                    RequesterId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReceiverId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     RequestedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     RespondedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -94,8 +93,8 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    FriendId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FriendId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -125,7 +124,7 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                     MediaType = table.Column<int>(type: "int", nullable: false),
                     MediaUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AuthorId = table.Column<int>(type: "int", nullable: false)
+                    AuthorId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -145,7 +144,7 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BattleId = table.Column<int>(type: "int", nullable: false),
-                    AttackerId = table.Column<int>(type: "int", nullable: false),
+                    AttackerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     X = table.Column<int>(type: "int", nullable: false),
                     Y = table.Column<int>(type: "int", nullable: false),
                     IsHit = table.Column<bool>(type: "bit", nullable: false),
@@ -175,7 +174,7 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BattleId = table.Column<int>(type: "int", nullable: false),
-                    OwnerId = table.Column<int>(type: "int", nullable: false),
+                    OwnerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
                     Size = table.Column<int>(type: "int", nullable: false),
                     IsPositioned = table.Column<bool>(type: "bit", nullable: false)
@@ -205,7 +204,7 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Text = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AuthorId = table.Column<int>(type: "int", nullable: false),
+                    AuthorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PostId = table.Column<int>(type: "int", nullable: false),
                     ParentCommentId = table.Column<int>(type: "int", nullable: true)
                 },
@@ -239,7 +238,7 @@ namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Reaction = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PostId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

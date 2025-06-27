@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using SocialNetworkProject.Core.Application.Dtos.Account;
+using SocialNetworkProject.Core.Application.Dtos.ApplicationUser;
 using SocialNetworkProject.Core.Application.Interfaces;
 using SocialNetworkProject.Core.Application.ViewModels.User;
 using SocialNetworkProject.Core.Domain.Common.Enums;
@@ -269,6 +271,24 @@ namespace SocialNetworkProject.Infrastructure.Identity.Services
             }
 
             return response;
+        }
+
+        public async Task<List<UserDto>> GetAllUsersAsync()
+        {
+            var users = await _userManager.Users
+                .Where(u => u.EmailConfirmed)
+                .ToListAsync();
+
+            return users.Select(u => new UserDto
+            {
+                Id = u.Id,
+                UserName = u.UserName,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email,
+                ProfilePictureUrl = u.ProfilePictureUrl,
+                IsActive = u.EmailConfirmed
+            }).ToList();
         }
 
         private async Task<string> GetVerificationEmailUri(AppUser user, string origin)

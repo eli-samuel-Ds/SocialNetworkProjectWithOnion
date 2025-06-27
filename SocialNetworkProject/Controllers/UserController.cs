@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetworkProject.Core.Application.Dtos.Account;
+using SocialNetworkProject.Core.Application.Dtos.ApplicationUser;
 using SocialNetworkProject.Core.Application.Interfaces;
 using SocialNetworkProject.Core.Application.ViewModels.User;
 using SocialNetworkProject.Helpers;
@@ -11,14 +12,16 @@ namespace SocialNetworkProject.Controllers
     public class UserController : Controller
     {
         private readonly IAccountService _accountService;
-        private readonly IFileUploader _fileUploader; 
+        private readonly IFileUploader _fileUploader;
+        private readonly IUserService _userService; 
         private readonly IMapper _mapper;
 
-        public UserController(IAccountService accountService, IMapper mapper, IFileUploader fileUploader) 
+        public UserController(IAccountService accountService, IUserService userService, IMapper mapper, IFileUploader fileUploader)
         {
             _accountService = accountService;
+            _userService = userService;
             _mapper = mapper;
-            _fileUploader = fileUploader; 
+            _fileUploader = fileUploader;
         }
 
         [ServiceFilter(typeof(LoginAuthorize))]
@@ -98,6 +101,17 @@ namespace SocialNetworkProject.Controllers
                 ModelState.AddModelError("RegisterError", response.Error);
                 return View(vm);
             }
+
+            var userDto = new UserDto
+            {
+                Id = response.Id,
+                FirstName = vm.FirstName,
+                LastName = vm.LastName,
+                Email = vm.Email,
+                UserName = vm.UserName, 
+                IsActive = false 
+            };
+            await _userService.AddAsync(userDto);
 
             if (!response.HasError && vm.ProfilePictureFile != null)
             {

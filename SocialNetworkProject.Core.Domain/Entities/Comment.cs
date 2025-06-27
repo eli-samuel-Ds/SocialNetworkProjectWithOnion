@@ -6,7 +6,7 @@ namespace SocialNetworkProject.Core.Domain.Entities
     {
         public required string Text { get; set; }
         public required DateTime CreatedAt { get; set; }
-        public required int AuthorId { get; set; }
+        public required string AuthorId { get; set; } 
         public required int PostId { get; set; }
         public int? ParentCommentId { get; set; }
 
