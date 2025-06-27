@@ -14,5 +14,6 @@ namespace SocialNetworkProject.Core.Application.Interfaces
         Task<FriendRequestInfoViewModel?> GetFriendRequestInfoAsync(int requestId, string currentUserId);
         Task<List<FriendViewModel>> GetAllFriendsAsync(string userId);
         Task DeleteFriendshipAsync(string userId, string friendId);
+        Task<int> GetPendingRequestCountAsync(string userId);
     }
 }

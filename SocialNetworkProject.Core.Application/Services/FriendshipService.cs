@@ -228,5 +228,10 @@ namespace SocialNetworkProject.Core.Application.Services
                 await _friendshipRepo.DeleteAsync(friendship2.Id);
             }
         }
+        public async Task<int> GetPendingRequestCountAsync(string userId)
+        {
+            var allRequests = await _friendRequestRepo.GetAllAsync();
+            return allRequests.Count(r => r.ReceiverId == userId && r.Status == RequestStatus.Pending);
+        }
     }
 }
