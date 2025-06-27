@@ -1,0 +1,60 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.Friend
+@model FriendsIndexViewModel
+@{
+    ViewData["Title"] = "Amigos";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2 class="mb-3">Publicaciones de tus Amigos</h2>
+            @if (Model.FriendsPosts.Any())
+            {
+                foreach (var post in Model.FriendsPosts)
+                {
+                    @await Html.PartialAsync("_PostCard", post)
+                }
+            }
+            else
+            {
+                <p>No hay publicaciones de tus amigos para mostrar. ¡Añade más amigos!</p>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Mi Lista de Amigos</h4>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @if (Model.FriendsList.Any())
+                    {
+                        foreach (var friend in Model.FriendsList)
+                        {
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="@friend.ProfilePictureUrl" alt="Foto de @friend.UserName" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;" />
+                                        <div>
+                                            <a asp-action="UserPosts" asp-route-id="@friend.UserId" class="text-decoration-none">
+                                                <strong>@friend.UserName</strong>
+                                            </a>
+                                            <div class="text-muted small">@friend.FirstName @friend.LastName</div>
+                                        </div>
+                                    </div>
+                                    <a asp-action="Delete" asp-route-id="@friend.UserId" class="btn btn-sm btn-outline-danger" title="Eliminar amigo">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                </div>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item">No tienes amigos todavía.</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

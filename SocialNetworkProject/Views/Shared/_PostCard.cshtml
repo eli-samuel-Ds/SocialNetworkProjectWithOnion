@@ -1,0 +1,33 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.Friend
+@using SocialNetworkProject.Core.Domain.Common.Enums
+@model PostViewModel
+
+<div class="card mb-3">
+    <div class="card-header d-flex align-items-center">
+        <img src="@Model.AuthorProfilePictureUrl" alt="Foto de @Model.AuthorUserName" class="rounded-circle me-2" style="width: 45px; height: 45px; object-fit: cover;" />
+        <div>
+            <a asp-controller="Friends" asp-action="UserPosts" asp-route-id="@Model.AuthorId" class="text-decoration-none fw-bold">
+                @Model.AuthorUserName
+            </a>
+            <div class="text-muted small">@Model.CreatedAt.ToString("g")</div>
+        </div>
+    </div>
+    <div class="card-body">
+        <p class="card-text">@Model.Content</p>
+        @if (Model.MediaType == MediaType.YouTube && !string.IsNullOrEmpty(Model.MediaUrl))
+        {
+            var videoId = Model.MediaUrl.Split("v=").LastOrDefault()?.Split('&').FirstOrDefault();
+            <div class="ratio ratio-16x9">
+                <iframe src="https://www.youtube.com/embed/@videoId" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        }
+        else if (Model.MediaType == MediaType.Image && !string.IsNullOrEmpty(Model.MediaUrl))
+        {
+            <img src="@Model.MediaUrl" class="img-fluid rounded" alt="Imagen de la publicación" />
+        }
+    </div>
+    <div class="card-footer text-muted">
+        <button class="btn btn-sm btn-outline-primary">Me gusta</button>
+        <button class="btn btn-sm btn-outline-secondary">Comentar</button>
+    </div>
+</div>

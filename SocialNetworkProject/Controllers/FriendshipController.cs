@@ -54,7 +54,7 @@ namespace SocialNetworkProject.Controllers
             var requestInfo = await _friendshipService.GetFriendRequestInfoAsync(id, _currentUserId);
             var vm = new ConfirmationViewModel
             {
-                ItemId = id,
+                ItemId = id.ToString(),
                 Message = $"¿Está seguro que desea aceptar la solicitud de amistad del usuario {requestInfo?.UserName}?",
                 ConfirmationAction = "AcceptConfirmed",
                 ConfirmationController = "Friendship"
@@ -74,7 +74,7 @@ namespace SocialNetworkProject.Controllers
             var requestInfo = await _friendshipService.GetFriendRequestInfoAsync(id, _currentUserId);
             var vm = new ConfirmationViewModel
             {
-                ItemId = id,
+                ItemId = id.ToString(),
                 Message = $"¿Está seguro que desea rechazar la solicitud de amistad del usuario {requestInfo?.UserName}?",
                 ConfirmationAction = "RejectConfirmed",
                 ConfirmationController = "Friendship"
@@ -94,7 +94,7 @@ namespace SocialNetworkProject.Controllers
             var requestInfo = await _friendshipService.GetFriendRequestInfoAsync(id, _currentUserId);
             var vm = new ConfirmationViewModel
             {
-                ItemId = id,
+                ItemId = id.ToString(),
                 Message = $"¿Está seguro que desea eliminar la solicitud de amistad para {requestInfo?.UserName}?",
                 ConfirmationAction = "DeleteConfirmed",
                 ConfirmationController = "Friendship"

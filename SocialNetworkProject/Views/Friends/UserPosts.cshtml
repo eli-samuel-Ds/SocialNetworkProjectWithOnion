@@ -1,0 +1,23 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.Friend
+@model UserPostsViewModel
+@{
+    ViewData["Title"] = $"Publicaciones de {Model.FriendUserName}";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Publicaciones de @Model.FriendUserName</h2>
+
+    <a asp-action="Index" class="btn btn-secondary mb-4">&larr; Volver a Amigos</a>
+
+    @if (Model.Posts.Any())
+    {
+        foreach (var post in Model.Posts)
+        {
+            @await Html.PartialAsync("_PostCard", post)
+        }
+    }
+    else
+    {
+        <p>Este usuario no tiene publicaciones.</p>
+    }
+</div>

@@ -4,6 +4,7 @@ using SocialNetworkProject.Core.Application.Dtos.Account;
 using SocialNetworkProject.Core.Application.Dtos.FriendRequest;
 using SocialNetworkProject.Core.Application.Helpers;
 using SocialNetworkProject.Core.Application.Interfaces;
+using SocialNetworkProject.Core.Application.ViewModels.Friend;
 using SocialNetworkProject.Core.Application.ViewModels.Friendship;
 using SocialNetworkProject.Core.Domain.Common.Enums;
 using SocialNetworkProject.Core.Domain.Entities;
@@ -192,6 +193,40 @@ namespace SocialNetworkProject.Core.Application.Services
             if (user1Id == user2Id) return 0;
             var user2Friends = await GetFriendIds(user2Id);
             return user1Friends.Intersect(user2Friends).Count();
+        }
+
+        public async Task<List<FriendViewModel>> GetAllFriendsAsync(string userId)
+        {
+            var allUsers = await _accountService.GetAllUsersAsync();
+            var friendshipIds = await GetFriendIds(userId);
+
+            return allUsers
+                .Where(u => friendshipIds.Contains(u.Id))
+                .Select(u => new FriendViewModel
+                {
+                    UserId = u.Id,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    UserName = u.UserName,
+                    ProfilePictureUrl = u.ProfilePictureUrl ?? "/images/default-profile.png"
+                }).ToList();
+        }
+
+        public async Task DeleteFriendshipAsync(string userId, string friendId)
+        {
+            var friendships = await _friendshipRepo.GetAllAsync();
+
+            var friendship1 = friendships.FirstOrDefault(f => f.UserId == userId && f.FriendId == friendId);
+            if (friendship1 != null)
+            {
+                await _friendshipRepo.DeleteAsync(friendship1.Id);
+            }
+
+            var friendship2 = friendships.FirstOrDefault(f => f.UserId == friendId && f.FriendId == userId);
+            if (friendship2 != null)
+            {
+                await _friendshipRepo.DeleteAsync(friendship2.Id);
+            }
         }
     }
 }

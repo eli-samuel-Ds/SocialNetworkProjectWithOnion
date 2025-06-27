@@ -13,6 +13,7 @@ namespace SocialNetworkProject.Core.Application
             services.AddTransient<IFileUploader, FileUploaderService>();
             services.AddTransient<IFriendshipService, FriendshipService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IPostService, PostService>();
         }
     }
 }

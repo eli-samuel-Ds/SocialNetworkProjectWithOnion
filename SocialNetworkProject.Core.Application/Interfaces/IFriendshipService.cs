@@ -1,4 +1,5 @@
-﻿using SocialNetworkProject.Core.Application.ViewModels.Friendship;
+﻿using SocialNetworkProject.Core.Application.ViewModels.Friend;
+using SocialNetworkProject.Core.Application.ViewModels.Friendship;
 using SocialNetworkProject.Core.Domain.Common.Enums;
 
 namespace SocialNetworkProject.Core.Application.Interfaces
@@ -11,5 +12,7 @@ namespace SocialNetworkProject.Core.Application.Interfaces
         Task RespondToFriendRequestAsync(int requestId, string currentUserId, RequestStatus newStatus);
         Task DeleteFriendRequestAsync(int requestId, string currentUserId);
         Task<FriendRequestInfoViewModel?> GetFriendRequestInfoAsync(int requestId, string currentUserId);
+        Task<List<FriendViewModel>> GetAllFriendsAsync(string userId);
+        Task DeleteFriendshipAsync(string userId, string friendId);
     }
 }

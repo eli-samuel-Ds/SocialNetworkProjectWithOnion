@@ -17,7 +17,7 @@
                 <div class="card-footer text-muted">
                     <form asp-controller="@Model.ConfirmationController" asp-action="@Model.ConfirmationAction" method="post">
                         <input type="hidden" name="id" value="@Model.ItemId" />
-                        <a asp-controller="Friendship" asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                        <a asp-controller="Friends" asp-action="Index" class="btn btn-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-danger">Aceptar</button>
                     </form>
                 </div>
