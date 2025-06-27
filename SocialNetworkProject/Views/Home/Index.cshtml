@@ -39,7 +39,6 @@
             </div>
         </div>
     </div>
-
     <div class="row">
         <div class="col-md-7">
             <h3 class="mb-3">Publicaciones de Amigos</h3>
@@ -57,7 +56,6 @@
                 </div>
             }
         </div>
-
         <div class="col-md-5">
             <h3 class="mb-3">Mis Publicaciones</h3>
             @if (Model.MyPosts.Any())
@@ -85,13 +83,26 @@
             const videoInputContainer = document.getElementById('videoInputContainer');
 
             function toggleInputs() {
+                if (!mediaTypeSelector) return;
                 const selectedValue = mediaTypeSelector.value;
                 imageInputContainer.style.display = selectedValue === 'Image' ? 'block' : 'none';
                 videoInputContainer.style.display = selectedValue === 'YouTube' ? 'block' : 'none';
             }
 
-            mediaTypeSelector.addEventListener('change', toggleInputs);
-            toggleInputs();
+            if(mediaTypeSelector) {
+                mediaTypeSelector.addEventListener('change', toggleInputs);
+                toggleInputs();
+            }
         });
+        function toggleReplyForm(commentId) {
+            var form = document.getElementById('reply-form-' + commentId);
+            if (form) {
+                if (form.style.display === 'none') {
+                    form.style.display = 'block';
+                } else {
+                    form.style.display = 'none';
+                }
+            }
+        }
     </script>
 }

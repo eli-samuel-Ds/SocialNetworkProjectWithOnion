@@ -1,0 +1,88 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.Home
+@model SavePostViewModel
+@{
+    ViewData["Title"] = "Editar Publicación";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4>Editar Publicación</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ExistingMediaUrl" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Content" class="form-label">Contenido</label>
+                            <textarea asp-for="Content" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Content" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MediaType" class="form-label">Tipo de Contenido Multimedia</label>
+                            <select asp-for="MediaType" class="form-select" id="mediaTypeSelector">
+                                <option value="None">Solo Texto</option>
+                                <option value="Image">Imagen</option>
+                                <option value="YouTube">Video de YouTube</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="imageInputContainer" style="display: none;">
+                            <label asp-for="ImageFile" class="form-label">Reemplazar Imagen</label>
+                            <input asp-for="ImageFile" class="form-control" />
+                            @if (Model.MediaType == SocialNetworkProject.Core.Domain.Common.Enums.MediaType.Image && !string.IsNullOrEmpty(Model.ExistingMediaUrl))
+                            {
+                                <div class="mt-2">
+                                    <small>Imagen actual:</small><br />
+                                    <img src="@Model.ExistingMediaUrl" class="img-thumbnail" style="max-width: 200px;" />
+                                </div>
+                            }
+                        </div>
+
+                        <div class="mb-3" id="videoInputContainer" style="display: none;">
+                            <label asp-for="VideoUrl" class="form-label">Enlace de YouTube</label>
+                            <input asp-for="VideoUrl" class="form-control" placeholder="Pegar nuevo enlace de YouTube" />
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mediaTypeSelector = document.getElementById('mediaTypeSelector');
+            const imageInputContainer = document.getElementById('imageInputContainer');
+            const videoInputContainer = document.getElementById('videoInputContainer');
+
+            function toggleInputs() {
+                if (!mediaTypeSelector) return;
+                const selectedValue = mediaTypeSelector.value;
+                imageInputContainer.style.display = selectedValue === 'Image' ? 'block' : 'none';
+                videoInputContainer.style.display = selectedValue === 'YouTube' ? 'block' : 'none';
+            }
+
+            if(mediaTypeSelector) {
+                mediaTypeSelector.addEventListener('change', toggleInputs);
+                toggleInputs();
+            }
+        });
+    </script>
+}

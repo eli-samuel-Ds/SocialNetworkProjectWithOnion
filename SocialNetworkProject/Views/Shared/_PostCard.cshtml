@@ -1,24 +1,48 @@
 ﻿@using SocialNetworkProject.Core.Application.ViewModels.Friend
+@using SocialNetworkProject.Core.Application.ViewModels.Home
 @using SocialNetworkProject.Core.Domain.Common.Enums
+@using Microsoft.AspNetCore.Http
+@using SocialNetworkProject.Core.Application.Dtos.Account
+@using SocialNetworkProject.Helpers
+@inject IHttpContextAccessor HttpContextAccessor
 @model PostViewModel
 
-<div class="card mb-3">
-    <div class="card-header d-flex align-items-center">
-        <img src="@Model.AuthorProfilePictureUrl" alt="Foto de @Model.AuthorUserName" class="rounded-circle me-2" style="width: 45px; height: 45px; object-fit: cover;" />
-        <div>
-            <a asp-controller="Friends" asp-action="UserPosts" asp-route-id="@Model.AuthorId" class="text-decoration-none fw-bold">
-                @Model.AuthorUserName
-            </a>
-            <div class="text-muted small">@Model.CreatedAt.ToString("g")</div>
+@{
+    var user = HttpContextAccessor.HttpContext?.Session.Get<AuthenticationResponse>("user");
+    var likeReaction = Model.Reactions.FirstOrDefault(r => r.Reaction == ReactionType.Like);
+    var dislikeReaction = Model.Reactions.FirstOrDefault(r => r.Reaction == ReactionType.Dislike);
+}
+
+<div class="card mb-3 shadow-sm">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <img src="@Model.AuthorProfilePictureUrl" alt="Foto de @Model.AuthorUserName" class="rounded-circle me-2" style="width: 45px; height: 45px; object-fit: cover;" />
+            <div>
+                <a asp-controller="Friends" asp-action="UserPosts" asp-route-id="@Model.AuthorId" class="text-decoration-none fw-bold text-dark">
+                    @Model.AuthorUserName
+                </a>
+                <div class="text-muted small">@Model.CreatedAt.ToString("g")</div>
+            </div>
         </div>
+        @if (Model.AuthorId == user?.Id)
+        {
+            <div class="dropdown">
+                <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-ellipsis"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Edit" asp-route-id="@Model.Id"><i class="fa-solid fa-pencil me-2"></i>Editar</a></li>
+                    <li><a class="dropdown-item text-danger" asp-controller="Home" asp-action="Delete" asp-route-id="@Model.Id"><i class="fa-solid fa-trash-can me-2"></i>Eliminar</a></li>
+                </ul>
+            </div>
+        }
     </div>
     <div class="card-body">
         <p class="card-text">@Model.Content</p>
         @if (Model.MediaType == MediaType.YouTube && !string.IsNullOrEmpty(Model.MediaUrl))
         {
-            var videoId = Model.MediaUrl.Split("v=").LastOrDefault()?.Split('&').FirstOrDefault();
             <div class="ratio ratio-16x9">
-                <iframe src="https://www.youtube.com/embed/@videoId" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe src="https://www.youtube.com/embed/@Model.MediaUrl" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         }
         else if (Model.MediaType == MediaType.Image && !string.IsNullOrEmpty(Model.MediaUrl))
@@ -26,8 +50,34 @@
             <img src="@Model.MediaUrl" class="img-fluid rounded" alt="Imagen de la publicación" />
         }
     </div>
-    <div class="card-footer text-muted">
-        <button class="btn btn-sm btn-outline-primary">Me gusta</button>
-        <button class="btn btn-sm btn-outline-secondary">Comentar</button>
+    <div class="card-footer bg-white">
+        <div class="d-flex justify-content-start gap-2 mb-3">
+            <form asp-controller="Home" asp-action="AddReaction" method="post">
+                <input type="hidden" name="PostId" value="@Model.Id" />
+                <input type="hidden" name="ReactionType" value="@ReactionType.Like" />
+                <button type="submit" class="btn @(likeReaction != null && likeReaction.UserHasReacted ? "btn-primary" : "btn-outline-primary") btn-sm">
+                    <i class="fa-solid fa-thumbs-up"></i> Me gusta (@(likeReaction?.Count ?? 0))
+                </button>
+            </form>
+            <form asp-controller="Home" asp-action="AddReaction" method="post">
+                <input type="hidden" name="PostId" value="@Model.Id" />
+                <input type="hidden" name="ReactionType" value="@ReactionType.Dislike" />
+                <button type="submit" class="btn @(dislikeReaction != null && dislikeReaction.UserHasReacted ? "btn-danger" : "btn-outline-danger") btn-sm">
+                    <i class="fa-solid fa-thumbs-down"></i> No me gusta (@(dislikeReaction?.Count ?? 0))
+                </button>
+            </form>
+        </div>
+        <div class="comment-section">
+            @await Html.PartialAsync("_CommentSection", Model.Comments, new ViewDataDictionary(ViewData) { { "PostId", Model.Id } })
+            <div class="mt-3">
+                <form asp-controller="Home" asp-action="AddComment" method="post">
+                    <input type="hidden" name="PostId" value="@Model.Id" />
+                    <div class="input-group">
+                        <input type="text" name="Text" class="form-control form-control-sm" placeholder="Escribe un comentario..." required>
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">Comentar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>

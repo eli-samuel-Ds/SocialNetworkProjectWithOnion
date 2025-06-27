@@ -22,7 +22,9 @@ namespace SocialNetworkProject.Core.Application.Mappings.DtosAndViewModels
                 .ForMember(dest => dest.ExistingMediaUrl, opt => opt.MapFrom(src => src.MediaUrl))
                 .ForMember(dest => dest.VideoUrl, opt =>
                 {
-                    opt.MapFrom(src => src.MediaType == MediaType.YouTube ? src.MediaUrl : string.Empty);
+                    opt.MapFrom(src => src.MediaType == MediaType.YouTube
+                                       ? $"https://www.youtube.com/watch?v={src.MediaUrl}"
+                                       : string.Empty);
                 });
         }
     }

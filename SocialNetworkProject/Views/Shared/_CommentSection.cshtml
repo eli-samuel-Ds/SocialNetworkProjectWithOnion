@@ -1,0 +1,63 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.Friend
+@using Microsoft.AspNetCore.Http
+@using SocialNetworkProject.Core.Application.Dtos.Account
+@using SocialNetworkProject.Helpers
+@inject IHttpContextAccessor HttpContextAccessor
+@model List<CommentViewModel>
+
+@{
+    var user = HttpContextAccessor.HttpContext?.Session.Get<AuthenticationResponse>("user");
+    var postId = ViewData["PostId"];
+}
+
+@if (Model.Any())
+{
+    <ul class="list-unstyled">
+        @foreach (var comment in Model)
+        {
+            <li class="mb-2">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <img src="@comment.AuthorProfilePictureUrl" alt="Foto de @comment.AuthorUserName" class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;" />
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="bg-light p-2 rounded">
+                            <div class="d-flex justify-content-between">
+                                <a href="#" class="text-dark fw-bold text-decoration-none">@comment.AuthorUserName</a>
+                                @if (comment.AuthorId == user?.Id)
+                                {
+                                    <form asp-controller="Home" asp-action="DeleteComment" asp-route-commentId="@comment.Id" method="post" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este comentario?');">
+                                        <button type="submit" class="btn btn-sm border-0 p-0 text-danger" title="Eliminar comentario">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                            <span>@comment.Text</span>
+                        </div>
+                        <div class="d-flex align-items-center mt-1 small">
+                            <span class="text-muted me-2">@comment.CreatedAt.ToString("g")</span>
+                            <a href="javascript:void(0)" class="text-muted text-decoration-none" onclick="toggleReplyForm(@comment.Id)">Responder</a>
+                        </div>
+                        <div id="reply-form-@comment.Id" class="mt-2" style="display:none;">
+                            <form asp-controller="Home" asp-action="AddComment" method="post">
+                                <input type="hidden" name="PostId" value="@postId" />
+                                <input type="hidden" name="ParentCommentId" value="@comment.Id" />
+                                <div class="input-group">
+                                    <input type="text" name="Text" class="form-control form-control-sm" placeholder="Escribe una respuesta..." required>
+                                    <button class="btn btn-sm btn-outline-secondary" type="submit">Responder</button>
+                                </div>
+                            </form>
+                        </div>
+                        @if (comment.Replies.Any())
+                        {
+                            <div class="mt-2 ps-3 border-start">
+                                @await Html.PartialAsync("_CommentSection", comment.Replies, ViewData)
+                            </div>
+                        }
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+}

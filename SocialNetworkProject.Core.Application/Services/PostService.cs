@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using SocialNetworkProject.Core.Application.Interfaces;
 using SocialNetworkProject.Core.Application.ViewModels.Friend;
 using SocialNetworkProject.Core.Application.ViewModels.Home;
@@ -37,9 +38,87 @@ namespace SocialNetworkProject.Core.Application.Services
             _mapper = mapper;
         }
 
+        private async Task<List<PostViewModel>> MapPostsToViewModels(IEnumerable<Post> posts, string currentUserId)
+        {
+            var allUsers = await _accountService.GetAllUsersAsync();
+            var allComments = await _commentRepo.GetAllAsync();
+            var allReactions = await _reactionRepo.GetAllAsync();
+
+            var postViewModels = new List<PostViewModel>();
+            foreach (var post in posts.OrderByDescending(p => p.CreatedAt))
+            {
+                var author = allUsers.FirstOrDefault(u => u.Id == post.AuthorId);
+                var postReactions = allReactions.Where(r => r.PostId == post.Id).ToList();
+
+                var postViewModel = new PostViewModel
+                {
+                    Id = post.Id,
+                    Content = post.Content,
+                    MediaUrl = post.MediaType == MediaType.YouTube ? post.MediaUrl : post.MediaUrl,
+                    MediaType = post.MediaType,
+                    CreatedAt = post.CreatedAt,
+                    AuthorId = post.AuthorId,
+                    AuthorUserName = author?.UserName ?? "Usuario desconocido",
+                    AuthorProfilePictureUrl = author?.ProfilePictureUrl ?? "/images/default-profile.png",
+
+                    Reactions = new List<ReactionViewModel>
+                    {
+                        new ReactionViewModel
+                        {
+                            Reaction = ReactionType.Like,
+                            Count = postReactions.Count(r => r.Reaction == ReactionType.Like),
+                            UserHasReacted = postReactions.Any(r => r.UserId == currentUserId && r.Reaction == ReactionType.Like)
+                        },
+                        new ReactionViewModel
+                        {
+                            Reaction = ReactionType.Dislike,
+                            Count = postReactions.Count(r => r.Reaction == ReactionType.Dislike),
+                            UserHasReacted = postReactions.Any(r => r.UserId == currentUserId && r.Reaction == ReactionType.Dislike)
+                        }
+                    },
+
+                    Comments = BuildCommentTree(allComments.Where(c => c.PostId == post.Id).ToList(), allUsers, null)
+                };
+                postViewModels.Add(postViewModel);
+            }
+            return postViewModels;
+        }
+
+        private List<CommentViewModel> BuildCommentTree(List<Comment> allPostComments, List<Dtos.ApplicationUser.UserDto> allUsers, int? parentId)
+        {
+            var comments = new List<CommentViewModel>();
+
+            var children = allPostComments.Where(c => c.ParentCommentId == parentId).OrderBy(c => c.CreatedAt);
+
+            foreach (var comment in children)
+            {
+                var author = allUsers.FirstOrDefault(u => u.Id == comment.AuthorId);
+                comments.Add(new CommentViewModel
+                {
+                    Id = comment.Id,
+                    Text = comment.Text,
+                    CreatedAt = comment.CreatedAt,
+                    AuthorId = comment.AuthorId,
+                    AuthorUserName = author?.UserName ?? "Usuario desc.",
+                    AuthorProfilePictureUrl = author?.ProfilePictureUrl ?? "/images/default-profile.png",
+                    Replies = BuildCommentTree(allPostComments, allUsers, comment.Id)
+                });
+            }
+            return comments;
+        }
+
+        private string GetYouTubeVideoId(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url)) return string.Empty;
+            var regex = new Regex(@"(?:https?:\/\/)?(?:www\.)?(?:(?:(?:youtube.com\/watch\?[^?]*v=|youtu.be\/)([\w\-]+))(?:[^\s?&]*))");
+            var match = regex.Match(url);
+            return match.Success ? match.Groups[1].Value : url; 
+        }
+
         public async Task<PostViewModel> AddPostAsync(SavePostViewModel vm, string authorId)
         {
             var post = _mapper.Map<Post>(vm);
+            post.Id = default;
             post.AuthorId = authorId;
             post.CreatedAt = DateTime.UtcNow;
 
@@ -171,36 +250,6 @@ namespace SocialNetworkProject.Core.Application.Services
             };
 
             return viewModel;
-        }
-
-        private async Task<List<PostViewModel>> MapPostsToViewModels(IEnumerable<Post> posts, string currentUserId)
-        {
-            var allUsers = await _accountService.GetAllUsersAsync();
-
-            var postViewModels = new List<PostViewModel>();
-            foreach (var post in posts.OrderByDescending(p => p.CreatedAt))
-            {
-                var author = allUsers.FirstOrDefault(u => u.Id == post.AuthorId);
-                postViewModels.Add(new PostViewModel
-                {
-                    Id = post.Id,
-                    Content = post.Content,
-                    MediaUrl = post.MediaUrl,
-                    MediaType = post.MediaType,
-                    CreatedAt = post.CreatedAt,
-                    AuthorId = post.AuthorId,
-                    AuthorUserName = author?.UserName ?? "Usuario desconocido",
-                    AuthorProfilePictureUrl = author?.ProfilePictureUrl ?? "/images/default-profile.png",
-                });
-            }
-            return postViewModels;
-        }
-
-        private string GetYouTubeVideoId(string url)
-        {
-            var regex = new Regex(@"(?:https?:\/\/)?(?:www\.)?(?:(?:(?:youtube.com\/watch\?[^?]*v=|youtu.be\/)([\w\-]+))(?:[^\s?&]*))");
-            var match = regex.Match(url);
-            return match.Success ? match.Groups[1].Value : string.Empty;
         }
     }
 }
