@@ -54,13 +54,12 @@ namespace SocialNetworkProject.Core.Application.Services
                 {
                     Id = post.Id,
                     Content = post.Content,
-                    MediaUrl = post.MediaType == MediaType.YouTube ? post.MediaUrl : post.MediaUrl,
+                    MediaUrl = post.MediaUrl,
                     MediaType = post.MediaType,
                     CreatedAt = post.CreatedAt,
                     AuthorId = post.AuthorId,
                     AuthorUserName = author?.UserName ?? "Usuario desconocido",
                     AuthorProfilePictureUrl = author?.ProfilePictureUrl ?? "/images/default-profile.png",
-
                     Reactions = new List<ReactionViewModel>
                     {
                         new ReactionViewModel
@@ -76,18 +75,16 @@ namespace SocialNetworkProject.Core.Application.Services
                             UserHasReacted = postReactions.Any(r => r.UserId == currentUserId && r.Reaction == ReactionType.Dislike)
                         }
                     },
-
-                    Comments = BuildCommentTree(allComments.Where(c => c.PostId == post.Id).ToList(), allUsers, null)
+                    Comments = BuildCommentTree(allUsers, allComments.Where(c => c.PostId == post.Id).ToList(), null)
                 };
                 postViewModels.Add(postViewModel);
             }
             return postViewModels;
         }
 
-        private List<CommentViewModel> BuildCommentTree(List<Comment> allPostComments, List<Dtos.ApplicationUser.UserDto> allUsers, int? parentId)
+        private List<CommentViewModel> BuildCommentTree(List<Dtos.ApplicationUser.UserDto> allUsers, List<Comment> allPostComments, int? parentId)
         {
             var comments = new List<CommentViewModel>();
-
             var children = allPostComments.Where(c => c.ParentCommentId == parentId).OrderBy(c => c.CreatedAt);
 
             foreach (var comment in children)
@@ -101,7 +98,7 @@ namespace SocialNetworkProject.Core.Application.Services
                     AuthorId = comment.AuthorId,
                     AuthorUserName = author?.UserName ?? "Usuario desc.",
                     AuthorProfilePictureUrl = author?.ProfilePictureUrl ?? "/images/default-profile.png",
-                    Replies = BuildCommentTree(allPostComments, allUsers, comment.Id)
+                    Replies = BuildCommentTree(allUsers, allPostComments, comment.Id)
                 });
             }
             return comments;
@@ -112,7 +109,7 @@ namespace SocialNetworkProject.Core.Application.Services
             if (string.IsNullOrWhiteSpace(url)) return string.Empty;
             var regex = new Regex(@"(?:https?:\/\/)?(?:www\.)?(?:(?:(?:youtube.com\/watch\?[^?]*v=|youtu.be\/)([\w\-]+))(?:[^\s?&]*))");
             var match = regex.Match(url);
-            return match.Success ? match.Groups[1].Value : url; 
+            return match.Success ? match.Groups[1].Value : url;
         }
 
         public async Task<PostViewModel> AddPostAsync(SavePostViewModel vm, string authorId)
@@ -121,6 +118,7 @@ namespace SocialNetworkProject.Core.Application.Services
             post.Id = default;
             post.AuthorId = authorId;
             post.CreatedAt = DateTime.UtcNow;
+            post.MediaType = vm.MediaType;
 
             if (vm.MediaType == MediaType.Image && vm.ImageFile != null)
             {
@@ -129,6 +127,11 @@ namespace SocialNetworkProject.Core.Application.Services
             else if (vm.MediaType == MediaType.YouTube && !string.IsNullOrEmpty(vm.VideoUrl))
             {
                 post.MediaUrl = GetYouTubeVideoId(vm.VideoUrl);
+            }
+            else
+            {
+                post.MediaType = MediaType.None;
+                post.MediaUrl = null;
             }
 
             var createdPost = await _postRepo.AddAsync(post);
@@ -143,15 +146,32 @@ namespace SocialNetworkProject.Core.Application.Services
                 throw new Exception("Publicación no encontrada o no autorizado para editar.");
             }
 
+            string originalMediaUrl = post.MediaUrl;
+            var originalMediaType = post.MediaType;
+
             post.Content = vm.Content;
+            post.MediaType = vm.MediaType;
 
             if (vm.MediaType == MediaType.Image && vm.ImageFile != null)
             {
-                post.MediaUrl = _fileUploader.UploadFile(vm.ImageFile, authorId, "posts", true, vm.ExistingMediaUrl);
+                post.MediaUrl = _fileUploader.UploadFile(vm.ImageFile, authorId, "posts", true, originalMediaUrl);
             }
             else if (vm.MediaType == MediaType.YouTube && !string.IsNullOrEmpty(vm.VideoUrl))
             {
+                if (originalMediaType == MediaType.Image && !string.IsNullOrEmpty(originalMediaUrl))
+                {
+                    _fileUploader.DeleteFile(originalMediaUrl);
+                }
                 post.MediaUrl = GetYouTubeVideoId(vm.VideoUrl);
+            }
+            else
+            {
+                if (originalMediaType == MediaType.Image && !string.IsNullOrEmpty(originalMediaUrl))
+                {
+                    _fileUploader.DeleteFile(originalMediaUrl);
+                }
+                post.MediaType = MediaType.None;
+                post.MediaUrl = null;
             }
 
             await _postRepo.UpdateAsync(post.Id, post);
@@ -165,7 +185,16 @@ namespace SocialNetworkProject.Core.Application.Services
                 throw new Exception("Publicación no encontrada o no autorizado.");
             }
             var saveViewModel = _mapper.Map<SavePostViewModel>(post);
-            saveViewModel.ExistingMediaUrl = post.MediaUrl;
+
+            if (post.MediaType == MediaType.YouTube)
+            {
+                saveViewModel.VideoUrl = $"https://www.youtube.com/watch?v={post.MediaUrl}";
+            }
+            else
+            {
+                saveViewModel.ExistingMediaUrl = post.MediaUrl;
+            }
+
             return saveViewModel;
         }
 
@@ -174,6 +203,10 @@ namespace SocialNetworkProject.Core.Application.Services
             var post = await _postRepo.GetByIdAsync(postId);
             if (post != null && post.AuthorId == authorId)
             {
+                if (post.MediaType == MediaType.Image && !string.IsNullOrEmpty(post.MediaUrl))
+                {
+                    _fileUploader.DeleteFile(post.MediaUrl);
+                }
                 await _postRepo.DeleteAsync(postId);
             }
         }
@@ -197,8 +230,21 @@ namespace SocialNetworkProject.Core.Application.Services
             var comment = await _commentRepo.GetByIdAsync(commentId);
             if (comment != null && comment.AuthorId == authorId)
             {
-                await _commentRepo.DeleteAsync(commentId);
+                await DeleteCommentAndRepliesAsync(comment.Id);
             }
+        }
+
+        private async Task DeleteCommentAndRepliesAsync(int commentId)
+        {
+            var allComments = await _commentRepo.GetAllAsync();
+            var replies = allComments.Where(c => c.ParentCommentId == commentId).ToList();
+
+            foreach (var reply in replies)
+            {
+                await DeleteCommentAndRepliesAsync(reply.Id);
+            }
+
+            await _commentRepo.DeleteAsync(commentId);
         }
 
         public async Task AddOrUpdateReactionAsync(SaveReactionViewModel vm, string userId)
@@ -235,7 +281,7 @@ namespace SocialNetworkProject.Core.Application.Services
             return await MapPostsToViewModels(friendsPosts, userId);
         }
 
-        public async Task<UserPostsViewModel> GetPostsByAuthorIdAsync(string authorId)
+        public async Task<UserPostsViewModel> GetPostsByAuthorIdAsync(string authorId, string currentUserId)
         {
             var allPosts = await _postRepo.GetAllAsync();
             var authorPosts = allPosts.Where(p => p.AuthorId == authorId);
@@ -246,10 +292,15 @@ namespace SocialNetworkProject.Core.Application.Services
             var viewModel = new UserPostsViewModel
             {
                 FriendUserName = author?.UserName ?? "Usuario desconocido",
-                Posts = await MapPostsToViewModels(authorPosts, authorId)
+                Posts = await MapPostsToViewModels(authorPosts, currentUserId)
             };
 
             return viewModel;
+        }
+
+        public Task<UserPostsViewModel> GetPostsByAuthorIdAsync(string authorId)
+        {
+            return GetPostsByAuthorIdAsync(authorId, authorId);
         }
     }
 }

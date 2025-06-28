@@ -40,5 +40,13 @@ namespace SocialNetworkProject.Core.Application.Services
 
             return $"/images/{subfolder}/{identifier}/{fileName}".Replace("\\", "/");
         }
+
+        public void DeleteFile(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+        }
     }
 }

@@ -12,8 +12,8 @@ using SocialNetworkProject.Infrastructure.Persistence.Contexts;
 namespace SocialNetworkProject.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SocialNetworkProjectContext))]
-    [Migration("20250627163327_RemovePasswordHashFromDomainUser")]
-    partial class RemovePasswordHashFromDomainUser
+    [Migration("20250628032535_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
