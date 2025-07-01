@@ -10,7 +10,8 @@ namespace SocialNetworkProject.Core.Domain.Entities
         public BattleStatus Status { get; set; } = BattleStatus.Setup;
         public required DateTime StartedAt { get; set; }
         public DateTime? EndedAt { get; set; }
-        public int? WinnerId { get; set; }
+        public string? WinnerId { get; set; } 
+        public string? CurrentTurnPlayerId { get; set; } 
 
         public ApplicationUser? Player1 { get; set; }
         public ApplicationUser? Player2 { get; set; }
