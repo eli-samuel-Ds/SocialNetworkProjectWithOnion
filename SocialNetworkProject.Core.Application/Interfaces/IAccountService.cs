@@ -9,7 +9,6 @@ namespace SocialNetworkProject.Core.Application.Interfaces
         Task<AuthenticationResponse> UpdateProfileAsync(UpdateProfileRequest request);
         Task<EditProfileViewModel> GetProfileForEditAsync(string userId);
         Task<ProfileDto> GetProfileForEditDtoAsync(string userId);
-
         Task SetProfilePictureAsync(string userId, string profilePictureUrl);
         Task<AuthenticationResponse> AuthenticateAsync(AuthenticationRequest request);
         Task<AuthenticationResponse> RegisterUserAsync(RegisterRequest request, string origin);
@@ -18,5 +17,6 @@ namespace SocialNetworkProject.Core.Application.Interfaces
         Task<AuthenticationResponse> ResetPasswordAsync(ResetPasswordRequest request);
         Task SignOutAsync();
         Task<List<UserDto>> GetAllUsersAsync();
+        Task<UserDto> GetUserByIdAsync(string userId); 
     }
 }

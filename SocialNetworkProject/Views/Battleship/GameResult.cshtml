@@ -1,0 +1,139 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.Battle
+@using SocialNetworkProject.Core.Domain.Common.Enums
+@model GameHistoryDetailViewModel
+@{
+    ViewData["Title"] = "Resultado de la Partida";
+    const int BoardSize = 12;
+}
+
+<style>
+    .board {
+        display: grid;
+        grid-template-columns: repeat( @BoardSize, 1fr);
+        gap: 2px;
+        max-width: 500px;
+        margin: auto;
+    }
+
+    .cell {
+        width: 100%;
+        padding-bottom: 100%;
+        position: relative;
+        background-color: #007bff;
+        border: 1px solid #0056b3;
+    }
+
+        .cell.hit {
+            background-color: #dc3545;
+        }
+
+        .cell.miss {
+            background-color: #adb5bd;
+        }
+
+        .cell.ship {
+            background-color: #28a745;
+        }
+
+    .cell-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: white;
+    }
+</style>
+
+<div class="container mt-4">
+    <h1 class="text-center">Resultado de la Partida</h1>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-6">
+            <h4 class="text-center">Tu Tablero de Ataque</h4>
+            <div class="board">
+                @for (int y = 0; y < BoardSize; y++)
+                {
+                    @for (int x = 0; x < BoardSize; x++)
+                    {
+                        var cell = Model.UserAttackBoard[x, y];
+                        var cellClass = "cell " + (cell.Status == CellStatus.Hit ? "hit" : cell.Status == CellStatus.Miss ? "miss" : "");
+                        <div class="@cellClass">
+                            <div class="cell-content">
+                                @if (cell.Status == CellStatus.Hit)
+                                {
+                                    <i class="fas fa-fire"></i>
+                                }
+                                @if (cell.Status == CellStatus.Miss)
+                                {
+                                    <i class="fas fa-times"></i>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h4 class="text-center">Tablero de Ataque del Oponente</h4>
+            <div class="board">
+                @for (int y = 0; y < BoardSize; y++)
+                {
+                    @for (int x = 0; x < BoardSize; x++)
+                    {
+                        var cell = Model.OpponentAttackBoard[x, y];
+                        var cellClass = "cell " + (cell.Status == CellStatus.Hit ? "hit" : cell.Status == CellStatus.Miss ? "miss" : "");
+                        <div class="@cellClass">
+                            <div class="cell-content">
+                                @if (cell.Status == CellStatus.Hit)
+                                {
+                                    <i class="fas fa-fire"></i>
+                                }
+                                @if (cell.Status == CellStatus.Miss)
+                                {
+                                    <i class="fas fa-times"></i>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <h4 class="text-center">Tu Posicionamiento de Barcos</h4>
+            <div class="board">
+                @for (int y = 0; y < BoardSize; y++)
+                {
+                    @for (int x = 0; x < BoardSize; x++)
+                    {
+                        var cell = Model.UserPlacementBoard[x, y];
+                        var cellClass = "cell " + (cell.Status == CellStatus.Ship ? "ship" : "");
+                        <div class="@cellClass">
+                            <div class="cell-content">
+                                @if (cell.Status == CellStatus.Ship)
+                                {
+                                    <i class="fas fa-ship"></i>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Volver al Historial
+        </a>
+    </div>
+</div>

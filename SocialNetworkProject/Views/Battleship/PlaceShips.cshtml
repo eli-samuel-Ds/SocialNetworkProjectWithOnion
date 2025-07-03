@@ -1,0 +1,159 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.Battle
+@using SocialNetworkProject.Core.Domain.Common.Enums
+@model ShipPlacementViewModel
+@{
+    ViewData["Title"] = "Posicionar Barcos";
+    const int BoardSize = 12;
+}
+
+<style>
+    .board {
+        display: grid;
+        grid-template-columns: repeat( @BoardSize, 1fr);
+        gap: 2px;
+        max-width: 600px;
+        margin: auto;
+    }
+
+    .cell {
+        width: 100%;
+        padding-bottom: 100%;
+        position: relative;
+        background-color: #e9ecef;
+        border: 1px solid #ccc;
+        cursor: pointer;
+    }
+
+        .cell:hover {
+            background-color: #d1d5db;
+        }
+
+        .cell.occupied {
+            background-color: #343a40; 
+            cursor: not-allowed;
+        }
+
+    .cell-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+</style>
+
+<div class="container mt-4">
+    <h2 class="text-center">Fase de Preparación: Posiciona tus Barcos</h2>
+    <hr />
+
+    @if (Model.IsWaitingForOpponent)
+    {
+        <div class="alert alert-info text-center">
+            <h4>¡Todos tus barcos están en posición!</h4>
+            <p>Esperando a que tu oponente termine de configurar su flota. Puedes volver más tarde.</p>
+            <a asp-action="Index" class="btn btn-primary">Volver al Menú de Battleship</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Barcos por Posicionar</h4>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                        {
+                            <div class="alert alert-danger">@Model.ErrorMessage</div>
+                        }
+
+                        <form asp-action="PlaceShipAction" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="BattleId" />
+                            <input type="hidden" asp-for="StartX" id="startX" />
+                            <input type="hidden" asp-for="StartY" id="startY" />
+
+                            <div class="mb-3">
+                                <label class="form-label">1. Selecciona un barco:</label>
+                                <select asp-for="SelectedShipId" asp-items="@(new SelectList(Model.UnplacedShips, "ShipId", "Name"))" class="form-select">
+                                    <option value="">-- Elige un barco --</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">2. Haz clic en el tablero para la celda inicial.</label>
+                                <p id="selected-cell-text" class="text-muted">Ninguna celda seleccionada.</p>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">3. Elige la dirección:</label>
+                                <select asp-for="Direction" asp-items="Html.GetEnumSelectList<ShipDirection>()" class="form-select">
+                                    <option value="">-- Elige una dirección --</option>
+                                </select>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-anchor me-2"></i>Posicionar Barco
+                                </button>
+                            </div>
+                        </form>
+                        <a asp-action="Index" class="btn btn-secondary mt-3 w-100">Volver al Menú</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="board">
+                    @for (int y = 0; y < BoardSize; y++)
+                    {
+                        @for (int x = 0; x < BoardSize; x++)
+                        {
+                            var cell = Model.Board[x, y];
+                            var cellClass = cell.Status == CellStatus.Occupied ? "cell occupied" : "cell";
+                            <div class="@cellClass" data-x="@x" data-y="@y" title="Celda (@(x + 1), @(y + 1))">
+                                <div class="cell-content">
+                                    @if (cell.Status == CellStatus.Occupied)
+                                    {
+                                        <i class="fas fa-ship text-white"></i>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cells = document.querySelectorAll('.cell:not(.occupied)');
+            const startXInput = document.getElementById('startX');
+            const startYInput = document.getElementById('startY');
+            const selectedCellText = document.getElementById('selected-cell-text');
+
+            cells.forEach(cell => {
+                cell.addEventListener('click', function () {
+                    document.querySelectorAll('.cell.bg-warning').forEach(c => c.classList.remove('bg-warning'));
+
+                    const x = this.dataset.x;
+                    const y = this.dataset.y;
+
+                    startXInput.value = x;
+                    startYInput.value = y;
+
+                    this.classList.add('bg-warning');
+                    selectedCellText.textContent = `Celda inicial seleccionada: (${parseInt(x) + 1}, ${parseInt(y) + 1})`;
+                });
+            });
+        });
+    </script>
+}

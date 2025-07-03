@@ -1,0 +1,181 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.Battle
+@using SocialNetworkProject.Core.Domain.Common.Enums
+@model GameViewModel
+@{
+    ViewData["Title"] = "Partida en Curso";
+    const int BoardSize = 12;
+}
+
+<style>
+    .board {
+        display: grid;
+        grid-template-columns: repeat(var(--board-size, @BoardSize ), 1fr);
+        gap: 2px;
+        max-width: 700px;
+        margin: auto;
+        border: 2px solid #333;
+        padding: 5px;
+        background-color: #6c757d;
+    }
+
+    .cell {
+        width: 100%;
+        padding-bottom: 100%;
+        position: relative;
+        background-color: #0d6efd;
+        border: 1px solid #0a58ca;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+        .cell:hover {
+            background-color: #0b5ed7;
+        }
+
+        .cell.hit {
+            background-color: #dc3545;
+            cursor: not-allowed;
+        }
+
+        .cell.miss {
+            background-color: #adb5bd;
+            cursor: not-allowed;
+        }
+
+    .cell-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .board.disabled {
+        cursor: not-allowed;
+    }
+
+        .board.disabled .cell {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+</style>
+
+<div class="container mt-4" style="--board-size: @BoardSize;">
+    <div class="text-center mb-4">
+        <h1>Partida contra @Model.OpponentUserName</h1>
+        <div id="turn-indicator" class="alert @(Model.IsUserTurn ? "alert-success" : "alert-warning") fs-4">
+            @if (Model.IsUserTurn)
+            {
+                <strong><i class="fas fa-crosshairs me-2"></i>¡Es tu turno! Selecciona una celda para atacar.</strong>
+            }
+            else
+            {
+                <strong><i class="fas fa-hourglass-half me-2"></i>Turno del oponente. Espera su jugada.</strong>
+            }
+        </div>
+    </div>
+
+    <form id="game-form" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <div id="attack-board" class="board @(Model.IsUserTurn ? "" : "disabled")">
+        @for (int y = 0; y < BoardSize; y++)
+        {
+            @for (int x = 0; x < BoardSize; x++)
+            {
+                var cell = Model.AttackBoard[x, y];
+                var cellClass = "cell";
+                var icon = "";
+                if (cell.Status == CellStatus.Hit) { cellClass += " hit"; icon = "<i class='fas fa-fire'></i>"; }
+                if (cell.Status == CellStatus.Miss) { cellClass += " miss"; icon = "<i class='fas fa-times'></i>"; }
+
+                <div class="@cellClass" data-x="@x" data-y="@y" title="Atacar (@(x + 1), @(y + 1))">
+                    <div class="cell-content">@Html.Raw(icon)</div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="mt-4 d-flex justify-content-center gap-2">
+        <button id="refresh-btn" class="btn btn-info"><i class="fas fa-sync-alt me-1"></i> Refrescar Pantalla</button>
+        <a asp-action="MyBoard" asp-route-id="@Model.BattleId" class="btn btn-primary"><i class="fas fa-user-shield me-1"></i> Ver mi Tablero</a>
+        <a asp-action="Surrender" asp-route-id="@Model.BattleId" class="btn btn-danger"><i class="fas fa-flag me-1"></i> Rendirse</a>
+        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Volver al Menú</a>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const board = document.getElementById('attack-board');
+            const turnIndicator = document.getElementById('turn-indicator');
+            const token = document.querySelector('#game-form input[name="__RequestVerificationToken"]').value;
+
+            board.addEventListener('click', function (e) {
+                const cell = e.target.closest('.cell');
+
+                if (!cell || board.classList.contains('disabled') || cell.classList.contains('hit') || cell.classList.contains('miss')) {
+                    return;
+                }
+
+                const x = cell.dataset.x;
+                const y = cell.dataset.y;
+
+                const attackData = {
+                    BattleId: @Model.BattleId,
+                    X: parseInt(x),
+                    Y: parseInt(y)
+                };
+
+                fetch('/Battleship/Attack', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(attackData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.errorMessage) {
+                        alert(data.errorMessage);
+                    } else {
+                        cell.classList.add(data.isHit ? 'hit' : 'miss');
+                        cell.innerHTML = `<div class="cell-content"><i class="fas ${data.isHit ? 'fa-fire' : 'fa-times'}"></i></div>`;
+
+                        if (data.isGameOver) {
+                            setTimeout(function() {
+                                alert('¡Felicidades, has hundido toda la flota enemiga y ganado la partida!');
+                                window.location.href = '/Battleship/Index';
+                            }, 500);
+                        } else {
+                            board.classList.add('disabled');
+                            turnIndicator.className = 'alert alert-warning fs-4';
+                            turnIndicator.innerHTML = `<strong><i class="fas fa-hourglass-half me-2"></i>Turno del oponente.</strong> Espera su jugada.`;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al procesar el ataque:', error);
+                    alert('Ocurrió un error al intentar atacar. Revisa la consola para más detalles.');
+                });
+            });
+
+            document.getElementById('refresh-btn').addEventListener('click', function() {
+                window.location.reload();
+            });
+        });
+    </script>
+}

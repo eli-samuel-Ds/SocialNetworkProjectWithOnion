@@ -14,6 +14,7 @@ namespace SocialNetworkProject.Core.Application
             services.AddTransient<IFriendshipService, FriendshipService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IPostService, PostService>();
+            services.AddTransient<IBattleService, BattleService>();
         }
     }
 }

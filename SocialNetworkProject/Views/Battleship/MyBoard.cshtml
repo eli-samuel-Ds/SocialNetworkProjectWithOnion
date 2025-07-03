@@ -1,0 +1,71 @@
+﻿@using SocialNetworkProject.Core.Application.ViewModels.Battle
+@using SocialNetworkProject.Core.Domain.Common.Enums
+@model UserBoardViewModel
+@{
+    ViewData["Title"] = "Mi Tablero";
+    const int BoardSize = 12;
+}
+
+<style>
+    .board {
+        display: grid;
+        grid-template-columns: repeat( @BoardSize, 1fr);
+        gap: 2px;
+        max-width: 600px;
+        margin: auto;
+    }
+
+    .cell {
+        width: 100%;
+        padding-bottom: 100%;
+        position: relative;
+        background-color: #e9ecef;
+        border: 1px solid #ccc;
+    }
+
+        .cell.ship {
+            background-color: #28a745;
+        }
+    .cell-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+</style>
+
+<div class="container mt-4">
+    <h2 class="text-center">Mi Tablero de Posicionamiento</h2>
+    <p class="text-center text-muted">Así es como posicionaste tu flota.</p>
+    <hr />
+
+    <div class="board">
+        @for (int y = 0; y < BoardSize; y++)
+        {
+            @for (int x = 0; x < BoardSize; x++)
+            {
+                var cell = Model.PlacementBoard[x, y];
+                var cellClass = cell.Status == CellStatus.Ship ? "cell ship" : "cell";
+                <div class="@cellClass" title="Celda (@(x + 1), @(y + 1))">
+                    <div class="cell-content">
+                        @if (cell.Status == CellStatus.Ship)
+                        {
+                            <i class="fas fa-ship text-white"></i>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-action="Game" asp-route-id="@Model.BattleId" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-1"></i> Volver a la Partida
+        </a>
+    </div>
+</div>

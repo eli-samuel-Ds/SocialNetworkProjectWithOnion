@@ -217,6 +217,26 @@ namespace SocialNetworkProject.Infrastructure.Identity.Services
             return viewModel;
         }
 
+        public async Task<UserDto> GetUserByIdAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new UserDto
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                IsActive = user.EmailConfirmed
+            };
+        }
+
         public async Task<ProfileDto> GetProfileForEditDtoAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
